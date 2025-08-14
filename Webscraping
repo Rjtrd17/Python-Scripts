@@ -1,0 +1,18 @@
+import pandas as pd
+import pyperclip
+from bs4 import BeautifulSoup
+
+# STEP 1: Paste copied HTML (table outerHTML) from clipboard
+html = pyperclip.paste()
+
+# STEP 2: Parse using BeautifulSoup
+soup = BeautifulSoup(html, 'html.parser')
+table = soup.find('table')
+
+if table:
+    df = pd.read_html(str(table))[0]
+    df.to_excel("Output File", index=False)
+    print("✅ Table extracted and saved to 'Output File.xlsx'")
+else:
+    print("❌ No <table> element found in clipboard HTML.")
+
