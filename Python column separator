@@ -1,0 +1,46 @@
+import pandas as pd
+import re
+
+# ✅ Use the correct absolute file path
+file_path = r"Filepath"
+
+# Load Excel file (by default, reads the first sheet)
+df = pd.read_excel(file_path)
+
+# ✅ Optional: preview to confirm data is in second column
+# print(df.head())
+
+# Define regex patterns for fields
+patterns = {
+    'DOB': r'DOB:\s*([^\n\r]+?)\s+Name:',
+    'Name': r'Name:\s*(.+?)\s+Identity No\.:',
+    'Identity No.': r'Identity No\.\s*:\s*(\S+)',
+    ' Year': r'Allotment Year\s*:\s*(\d{4})',
+    'Source of Recruitment': r'Source of Recruitment\s*:\s*([^\n\r]+?)\s+Qualification',
+    'Qualification': r'Qualification\(Subject\)\s*:\s*([^\n\r]+?)\s+Pay Scale',
+    'Pay Scale': r'Pay Scale\s*:\s*([^\n\r]+?)\s+Remarks',
+    'Remarks': r'Remarks\s*:\s*([^\n\r]+?)\s+Cadre & Domicile',
+    'Domicile': r'Cadre & Domicile\s*:\s*([^\n\r]+?)\s+Posting',
+    'Post': r'Posting:-\s*([^\n\r]+?)\s+Posting W\.E\.F\.:',
+    'Post W.E.F.': r'Posting W\.E\.F\.\s*:\s*([^\n\r]+)'
+}
+
+# Prepare dictionary to collect extracted fields
+extracted_data = {key: [] for key in patterns.keys()}
+
+# ✅ Loop through second column (index 1), assuming officer details are there
+for row in df.iloc[:, 1]:
+    row = str(row)
+    for field, pattern in patterns.items():
+        match = re.search(pattern, row)
+        extracted_data[field].append(match.group(1).strip() if match else None)
+
+# Create a new structured DataFrame
+parsed_df = pd.DataFrame(extracted_data)
+
+# ✅ Save parsed data to a new Excel file
+output_path = r"Output FilePath"
+parsed_df.to_excel(output_path, index=False)
+
+print("✅ Done! Parsed data saved to:")
+print(output_path)
